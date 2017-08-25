@@ -1,7 +1,7 @@
 import React from 'react'
 import { Route, Switch } from 'react-router-dom'
-import BookShelf from './BookShelf'
 import './App.css'
+import BookShelf from './BookShelf'
 import Search from "./Search"
 
 class BooksApp extends React.Component {
@@ -11,8 +11,13 @@ class BooksApp extends React.Component {
             <div className="app">
 
                 <Switch>
+
+                    {/*Load the BookShelf component when at root path*/}
                     <Route exact path="/" component={BookShelf}/>
+
+                    {/*Load the Search component when path matches '/search'*/}
                     <Route path="/search" component={Search}/>
+
                 </Switch>
 
             </div>
