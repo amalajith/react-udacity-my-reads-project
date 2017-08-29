@@ -1,38 +1,46 @@
 import React, {Component} from 'react'
+import * as _ from 'lodash'
 import {Link} from 'react-router-dom'
 import * as BooksAPI from './BooksAPI'
 import Book from "./Book"
 
 export default class BookShelf extends Component {
     state = {
-        shelf : {
-            currentlyReading: [],
-            wantToRead: [],
-            read: []
-        }
+        currentlyReading: [],
+        wantToRead: [],
+        read: []
     }
 
     componentDidMount() {
+        this.getAllBooks();
+    }
+
+    getAllBooks = () => {
         BooksAPI.getAll()
             .then((books) => {
                 const currentlyReading = books.filter((book) => book.shelf === 'currentlyReading')
                 const wantToRead = books.filter((book) => book.shelf === 'wantToRead')
                 const read = books.filter((book) => book.shelf === 'read')
                 this.setState({
-                    shelf : {
-                        currentlyReading,
-                        wantToRead,
-                        read
-                    }
+                    currentlyReading,
+                    wantToRead,
+                    read
                 })
             })
     }
 
+    handleShelfChange = (e, selectedBook) => {
+        const newShelf = e.target.value
+        BooksAPI.update(selectedBook, newShelf).then(res => {
+            this.getAllBooks()
+        })
+    }
+
     render() {
 
-        const currentlyReading = this.state.shelf.currentlyReading
-        const wantToRead = this.state.shelf.wantToRead
-        const read = this.state.shelf.read
+        const currentlyReading = this.state.currentlyReading
+        const wantToRead = this.state.wantToRead
+        const read = this.state.read
 
         return (
             <div className="list-books">
@@ -48,11 +56,8 @@ export default class BookShelf extends Component {
 
                                     {currentlyReading.map((book) => (
                                         <li key={book.id}>
-                                            <Book
-                                                image={book.imageLinks.thumbnail}
-                                                title={book.title}
-                                                authors={book.authors}
-                                                shelf={book.shelf}
+                                            <Book book={book}
+                                                  onShelfChange={this.handleShelfChange}
                                             />
                                         </li>
                                     ))}
@@ -65,12 +70,9 @@ export default class BookShelf extends Component {
                             <div className="bookshelf-books">
                                 <ol className="books-grid">
                                     {wantToRead.map((book) => (
-                                        <li>
-                                            <Book
-                                                image={book.imageLinks.thumbnail}
-                                                title={book.title}
-                                                authors={book.authors}
-                                                shelf={book.shelf}
+                                        <li key={book.id}>
+                                            <Book book={book}
+                                                  onShelfChange={this.handleShelfChange}
                                             />
                                         </li>
                                     ))}
@@ -83,12 +85,9 @@ export default class BookShelf extends Component {
                             <div className="bookshelf-books">
                                 <ol className="books-grid">
                                     {read.map((book) => (
-                                        <li>
-                                            <Book
-                                                image={book.imageLinks.thumbnail}
-                                                title={book.title}
-                                                authors={book.authors}
-                                                shelf={book.shelf}
+                                        <li key={book.id}>
+                                            <Book book={book}
+                                                  onShelfChange={this.handleShelfChange}
                                             />
                                         </li>
                                     ))}
