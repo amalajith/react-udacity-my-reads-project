@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import * as _ from 'lodash'
 import {Link} from 'react-router-dom'
 import * as BooksAPI from './BooksAPI'
-import Book from "./Book"
+import Book from "./components/Book"
 
 export default class BookShelf extends Component {
     state = {
