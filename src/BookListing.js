@@ -42,7 +42,7 @@ export default class BookListing extends Component {
         })
         this.setState({ books })
         BooksAPI.update(selectedBook, newShelf).then(res => {
-            this.getAllBooks()
+            // this.getAllBooks()
         })
     }
 
