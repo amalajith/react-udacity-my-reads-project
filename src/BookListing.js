@@ -1,14 +1,15 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import * as _ from 'lodash'
 import {Link} from 'react-router-dom'
+import { Loader } from 'semantic-ui-react'
 import BookShelf from './components/BookShelf'
 import * as BooksAPI from './BooksAPI'
 
 export default class BookListing extends Component {
+
     state = {
-        currentlyReading: [],
-        wantToRead: [],
-        read: []
+        books: [],
+        loadingComplete: false
     }
 
     componentDidMount() {
@@ -18,19 +19,28 @@ export default class BookListing extends Component {
     getAllBooks = () => {
         BooksAPI.getAll()
             .then((books) => {
-                const currentlyReading = books.filter((book) => book.shelf === 'currentlyReading')
-                const wantToRead = books.filter((book) => book.shelf === 'wantToRead')
-                const read = books.filter((book) => book.shelf === 'read')
                 this.setState({
-                    currentlyReading,
-                    wantToRead,
-                    read
+                    books,
+                    loadingComplete: true
                 })
             })
     }
 
     handleShelfChange = (e, selectedBook) => {
         const newShelf = e.target.value
+        const books = this.state.books.map(book => {
+            if(book.id === selectedBook.id){
+                return {
+                    ...book,
+                    shelf: newShelf
+                }
+            }else{
+                return {
+                    ...book
+                }
+            }
+        })
+        this.setState({ books })
         BooksAPI.update(selectedBook, newShelf).then(res => {
             this.getAllBooks()
         })
@@ -38,9 +48,9 @@ export default class BookListing extends Component {
 
     render() {
 
-        const currentlyReading = this.state.currentlyReading
-        const wantToRead = this.state.wantToRead
-        const read = this.state.read
+        const currentlyReading = this.state.books.filter((book) => book.shelf === 'currentlyReading')
+        const wantToRead = this.state.books.filter((book) => book.shelf === 'wantToRead')
+        const read = this.state.books.filter((book) => book.shelf === 'read')
 
         return (
             <div className="list-books">
@@ -48,24 +58,30 @@ export default class BookListing extends Component {
                     <h1>MyReads</h1>
                 </div>
                 <div className="list-books-content">
-                    <div>
+                    {this.state.loadingComplete ? (
+                        <div>
 
-                        {/*Currently reading*/}
-                        <BookShelf shelfName={'Currently reading'}
-                                   books={currentlyReading}
-                                   handleShelfChange={this.handleShelfChange}/>
+                            {/*Currently reading*/}
+                            <BookShelf shelfName={'Currently reading'}
+                                       books={currentlyReading}
+                                       handleShelfChange={this.handleShelfChange}/>
 
-                        {/*Want to read*/}
-                        <BookShelf shelfName={'Want to read'}
-                                   books={wantToRead}
-                                   handleShelfChange={this.handleShelfChange}/>
+                            {/*Want to read*/}
+                            <BookShelf shelfName={'Want to read'}
+                                       books={wantToRead}
+                                       handleShelfChange={this.handleShelfChange}/>
 
-                        {/*Read*/}
-                        <BookShelf shelfName={'Read'}
-                                   books={read}
-                                   handleShelfChange={this.handleShelfChange}/>
+                            {/*Read*/}
+                            <BookShelf shelfName={'Read'}
+                                       books={read}
+                                       handleShelfChange={this.handleShelfChange}/>
 
-                    </div>
+                        </div>
+                    ) : (
+                        <div>
+                            <Loader active inline='centered' />
+                        </div>
+                    ) }
                 </div>
                 <div className="open-search">
                     <Link to="/search">
