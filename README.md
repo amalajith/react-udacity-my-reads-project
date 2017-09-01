@@ -1,9 +1,9 @@
-##Installation instructions
+## Installation instructions
 1. Clone the repository
 2. Run npm install
 3. Run npm start
 
-###Additional dependencies in package.json
+### Additional dependencies in package.json
 The following two dependencies has been added extra 
 from the existing starter template
 1. Lodash
