@@ -1,10 +1,10 @@
 import React, {Component} from 'react'
 import * as _ from 'lodash'
 import {Link} from 'react-router-dom'
+import BookShelf from './components/BookShelf'
 import * as BooksAPI from './BooksAPI'
-import Book from "./components/Book"
 
-export default class BookShelf extends Component {
+export default class BookListing extends Component {
     state = {
         currentlyReading: [],
         wantToRead: [],
@@ -49,51 +49,22 @@ export default class BookShelf extends Component {
                 </div>
                 <div className="list-books-content">
                     <div>
-                        <div className="bookshelf">
-                            <h2 className="bookshelf-title">Currently Reading</h2>
-                            <div className="bookshelf-books">
-                                <ol className="books-grid">
 
-                                    {currentlyReading.map((book) => (
-                                        <li key={book.id}>
-                                            <Book book={book}
-                                                  onShelfChange={this.handleShelfChange}
-                                            />
-                                        </li>
-                                    ))}
+                        {/*Currently reading*/}
+                        <BookShelf shelfName={'Currently reading'}
+                                   books={currentlyReading}
+                                   handleShelfChange={this.handleShelfChange}/>
 
-                                </ol>
-                            </div>
-                        </div>
-                        <div className="bookshelf">
-                            <h2 className="bookshelf-title">Want to Read</h2>
-                            <div className="bookshelf-books">
-                                <ol className="books-grid">
-                                    {wantToRead.map((book) => (
-                                        <li key={book.id}>
-                                            <Book book={book}
-                                                  onShelfChange={this.handleShelfChange}
-                                            />
-                                        </li>
-                                    ))}
+                        {/*Want to read*/}
+                        <BookShelf shelfName={'Want to read'}
+                                   books={wantToRead}
+                                   handleShelfChange={this.handleShelfChange}/>
 
-                                </ol>
-                            </div>
-                        </div>
-                        <div className="bookshelf">
-                            <h2 className="bookshelf-title">Read</h2>
-                            <div className="bookshelf-books">
-                                <ol className="books-grid">
-                                    {read.map((book) => (
-                                        <li key={book.id}>
-                                            <Book book={book}
-                                                  onShelfChange={this.handleShelfChange}
-                                            />
-                                        </li>
-                                    ))}
-                                </ol>
-                            </div>
-                        </div>
+                        {/*Read*/}
+                        <BookShelf shelfName={'Read'}
+                                   books={read}
+                                   handleShelfChange={this.handleShelfChange}/>
+
                     </div>
                 </div>
                 <div className="open-search">

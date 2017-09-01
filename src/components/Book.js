@@ -20,7 +20,7 @@ export default class Book extends Component {
                     </div>
                 </div>
                 <div className="book-title">{book.title}</div>
-                {book.authors.map((author,index) => (
+                {book.authors && book.authors.map((author,index) => (
                     <div key={index} className="book-authors">{author}</div>
                 ))}
             </div>
@@ -28,14 +28,15 @@ export default class Book extends Component {
     }
 }
 
-// Book.propTypes = {
-//     book : PropTypes.shape(
-//         {
-//             imageList : PropTypes.array.isRequired,
-//             shelf : PropTypes.string.isRequired,
-//             title : PropTypes.string.isRequired,
-//             authors : PropTypes.array.isRequired,
-//         }
-//     ),
-//     onShelfChange : PropTypes.func.isRequired
-// }
+
+Book.propTypes = {
+    book : PropTypes.shape(
+        {
+            imageLinks : PropTypes.object.isRequired,
+            shelf : PropTypes.string,
+            title : PropTypes.string.isRequired,
+            authors : PropTypes.array,
+        }
+    ),
+    onShelfChange : PropTypes.func.isRequired
+}
