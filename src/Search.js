@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import * as _ from 'lodash'
 import { Link } from 'react-router-dom'
+import { Loader } from 'semantic-ui-react'
 import * as BooksAPI from './BooksAPI'
 import BookShelf from './components/BookShelf'
 
@@ -10,6 +11,7 @@ export default class Search extends Component {
         currentBooksInShelf: [],
         searchTerm : '',
         searchResults: [],
+        searchInprogress: false
     }
 
     componentDidMount() {
@@ -26,19 +28,51 @@ export default class Search extends Component {
     updateQuery = (searchTerm) => {
 
         this.setState({ searchTerm })
-        BooksAPI.search(searchTerm,10)
-            .then(results => {
-                const bookResults = results.map(result => {
-                    return {
-                        ...result,
-                        shelf: 'none'
+        if(searchTerm === ''){
+            return
+        }
+        this.setState({
+            searchResults: [],
+            searchInprogress:true
+        },() => {
+            BooksAPI.search(searchTerm,10)
+                .then(books => {
+
+                    if(books){
+                        //Handle if no results come
+                        if(books.error){
+                            this.setState({
+                                searchResults: [],
+                                searchInprogress: false
+                            })
+                            return
+                        }
+                        if(books.length > 0){
+                            const searchResults = books.map(book => {
+                                const existingBook = _.find(this.state.currentBooksInShelf, (currentBook) => { return currentBook.id === book.id })
+                                if(existingBook){
+                                    return {
+                                        ...book,
+                                        shelf: existingBook.shelf
+                                    }
+                                }else{
+                                    return {
+                                        ...book,
+                                        shelf: 'none'
+                                    }
+                                }
+                            })
+
+                            this.setState({
+                                searchInprogress: false,
+                                searchResults
+                            })
+                        }
+
                     }
                 })
-                const searchResults = _.unionBy(bookResults,this.state.currentBooksInShelf, 'id')
-                this.setState({
-                    searchResults
-                })
-            })
+        })
+
     }
 
     handleShelfChange = (e, selectedBook) => {
@@ -59,12 +93,15 @@ export default class Search extends Component {
 
         this.setState({ searchResults })
 
-        BooksAPI.update(selectedBook, newShelf).then(res => {
-
-        })
+        BooksAPI.update(selectedBook, newShelf).then(res => {})
     }
 
     render() {
+        const currentlyReading = this.state.searchResults.filter((book) => book.shelf === 'currentlyReading')
+        const wantToRead = this.state.searchResults.filter((book) => book.shelf === 'wantToRead')
+        const read = this.state.searchResults.filter((book) => book.shelf === 'read')
+        const none = this.state.searchResults.filter((book) => book.shelf === 'none')
+
         return (
             <div className="search-books">
                 <div className="search-books-bar">
@@ -74,7 +111,34 @@ export default class Search extends Component {
                     </div>
                 </div>
                 <div className="search-books-results">
-                    <BookShelf books={this.state.searchResults} handleShelfChange={this.handleShelfChange}/>
+                    {this.state.searchInprogress && (
+                        <div>
+                            <Loader active inline='centered' />
+                        </div>
+                    )}
+
+                    {this.state.searchResults.length > 0 && (
+                        <div>
+                            {/*Currently reading*/}
+                            <BookShelf shelfName={'Currently reading'}
+                                       books={currentlyReading}
+                                       handleShelfChange={this.handleShelfChange}/>
+
+                            {/*Want to read*/}
+                            <BookShelf shelfName={'Want to read'}
+                                       books={wantToRead}
+                                       handleShelfChange={this.handleShelfChange}/>
+
+                            {/*Read*/}
+                            <BookShelf shelfName={'Read'}
+                                       books={read}
+                                       handleShelfChange={this.handleShelfChange}/>
+                            {/*None*/}
+                            <BookShelf shelfName={'New books'}
+                                       books={none}
+                                       handleShelfChange={this.handleShelfChange}/>
+                        </div>
+                    )}
                 </div>
             </div>
         )
